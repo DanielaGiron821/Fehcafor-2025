@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEHCAFOR - Galeria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS adicional */
+        body {
+            font-family: 'Poppins', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .hero-slider {
+            position: relative;
+            height: 90vh;
+            overflow: hidden;
+            animation: fadeIn 4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slides {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 4s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .program {
+            animation: slideInUp 0.4s ease-in-out;
+        }
+
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-results {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            animation: zoomIn 0.1s ease-in-out;
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .results-content {
+            max-width: 500px;
+            padding: 20px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-content ul {
+            padding: 0;
+        }
+
+        .results-content ul li {
+            list-style: none;
+            margin-bottom: 10px;
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: blue;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.4s;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+
+        .scroll-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .logo-large {
+            width: 130px;
+            height: 150px;
+            border-radius: 0px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-spaced {
+            padding: 1rem 3rem;
+        }
+
+        .fixed-header {
+            position: fixed;
+            top: 64px;
+            width: 100%;
+            background-color: #f9f9f9;
+            z-index: 40;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        /* Estilos para la galería */
+        .gallery-section {
+            padding: 4rem 2rem;
+            background-color: #f0f8ff;
+            /* Azul claro para hacerlo más atractivo */
+            margin-bottom: 2rem;
+            animation: slideInUp 0.5s ease-in-out;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Lightbox styles */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: zoomIn 0.3s ease-in-out;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .lightbox-caption {
+            color: rgb(255, 255, 255);
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+        aria-label="Ir arriba">↑</button>
+
+    <!-- Barra de navegación -->
+    <nav
+        class="bg-green-900 bg-opacity-95 backdrop-blur-sm text-white fixed top-0 w-full z-50 flex justify-between items-center navbar-spaced transition-all duration-300">
+        <ul class="flex space-x-8">
+            <li><a href="inicio.html" class="hover:text-yellow-400 font-semibold transition duration-200">Inicio</a>
+            </li>
+            <li><a href="quienes-somos.html" class="hover:text-yellow-400 font-semibold transition duration-200">Quiénes
+                    Somos</a></li>
+            <li><a href="sala-informativa.html" class="hover:text-yellow-400 font-semibold transition duration-200">Sala
+                    Informativa</a>
+            </li>
+            <li><a href="galeria.html" class="hover:text-yellow-400 font-semibold transition duration-200">Galeria</a>
+            </li>
+            <li><a href="enlaces-interes.html"
+                    class="hover:text-yellow-400 font-semibold transition duration-200">Enlaces de Interes</a></li>
+
+            <li><a href="contactos.html"
+                    class="hover:text-yellow-400 font-semibold transition duration-200">contactanos</a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Sección fija para el logo (sin cambios) -->
+    <div
+        class="bg-white -800 bg-opacity-95 backdrop-blur-sm fixed-header text-white  flex flex-row  items-center justify-center gap-8">
+        <img src="img/logo_fehcafor.1.png" alt="Logo Fehcafor" class="logo-large w-50 h-auto">
+        <div>
+            <h1 class="text-3xl font-bold text-green-700 mb-2">FEHCAFOR</h1>
+            <p class="text-xl text-green-700"><b>FEDERACIÓN HONDUREÑA DE COOPERATIVAS AGROFORESTALES</b></p>
+        </div>
+    </div> <br><br><br><br><br><br><br>
+
+    <!-- Introducción a la galería -->
+    <section class="py-16 bg-gradient-to-r from-green-100 to-green-200 text-center animate-fadeIn">
+        <h2 class="text-4xl font-bold text-green-800 mb-4">¡Descubre Nuestra Galería de Momentos Increíbles!</h2>
+        <p class="text-lg text-gray-700 max-w-2xl mx-auto">Explora imágenes organizadas por secciones y años. Selecciona
+            las fotos de Capacitación, Asamblea, Proyectos y Eventos para 2024 o 2025, y vive la experiencia interactiva
+            con solo un clic.</p>
+        <div class="mt-8 flex justify-center gap-4">
+            <a href="#capacitacion"
+                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Capacitación</a>
+            <a href="#asamblea" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Asamblea</a>
+            <a href="#proyectos" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Proyectos</a>
+            <a href="#eventos" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Eventos</a>
+            <a href="#aserradero" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Aserradero</a>
+        </div>
+    </section>
+
+    <!-- Secciones de Galería -->
+    <section id="galeria" class="py-12">
+        <!-- Sección: Capacitación -->
+        <section id="capacitacion" class="gallery-section">
+            <h3 class="text-3xl font-bold text-center text-green-800 mb-6">Capacitaciones 2025</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Casilla 2024 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+
+                    <div class="gallery-grid">
+                        <img src="img/capacitacion 9 2025.jpg" alt="Capacitacion de Genero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/capa 1.jpg" alt="Capacitacion de Genero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+                <!-- Casilla 2025 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+
+                    <div class="gallery-grid">
+                        <img src="img/capaa.jpg" alt="Capacitacion de Genero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/capacitacion juventud 2025.jpg" alt="Capacitacion de Juventud"
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Asamblea -->
+        <section id="asamblea" class="gallery-section">
+            <h3 class="text-3xl font-bold text-center text-green-800 mb-6">Asamblea</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Casilla 2024 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <h4 style="text-align: center;" class="text-2xl font-bold text-green-600 mb-4">2024</h4>
+                    <div class="gallery-grid">
+                        <img src="img/asambl 2024.jpeg" alt="Asamblea 2024" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea - 2024.jpeg" alt="Asamblea 2024" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea - 2024.jpeg" alt="Asamblea 2024" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea. 2024.jpeg" alt="Asamblea 2024" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+                <!-- Casilla 2025 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <h4 style="text-align: center;" class="text-2xl font-bold text-green-600 mb-4">2025</h4>
+                    <div class="gallery-grid">
+                        <img src="img/asam 2025.jpg" alt="Asamblea 2025" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea 1 2025.jpg" alt="Asamblea 2025" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea 2025..jpg" alt="Asamblea 2025" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/asamblea 2025.jpg" alt="Asamblea 2025" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Proyectos -->
+        <section id="proyectos" class="gallery-section">
+            <h3 class="text-3xl font-bold text-center text-green-800 mb-6">Proyectos 2025</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Casilla 2024 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+
+                    <div class="gallery-grid">
+                        <img src="img/proyecto 2025.jpg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/proyecto 3 2025.jpg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/proyecto 2025 3.jpg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/proyecto 5 2025.jpg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+                <!-- Casilla 2025 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+
+                    <div class="gallery-grid">
+                        <img src="img/IAF proyecto.jpeg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/pro 2025.jpg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/pro IAF 2.jpeg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/PRO IAF 3.jpeg"
+                            alt="𝘗𝘳𝘰𝘺𝘦𝘤𝘵𝘰 𝘔𝘢𝘯𝘦𝘫𝘰 𝘊𝘰𝘮𝘶𝘯𝘪𝘵𝘢𝘳𝘪𝘰 𝘚𝘰𝘴𝘵𝘦𝘯𝘪𝘣𝘭𝘦 𝘥𝘦 𝘉𝘰𝘴𝘲𝘶𝘦𝘴 𝘥𝘦 𝘗𝘪𝘯𝘰 𝘺 𝘌𝘹𝘵𝘳𝘢𝘤𝘤𝘪𝘰́𝘯 𝘥𝘦 𝘙𝘦𝘴𝘪𝘯𝘢 𝘥𝘦 𝘱𝘪𝘯𝘰 𝘐𝘈𝘍."
+                            class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Eventos -->
+        <section id="eventos" class="gallery-section">
+            <h3 class="text-3xl font-bold text-center text-green-800 mb-6">Eventos</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Casilla 2024 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <h4 style="text-align: center;" class="text-2xl font-bold text-green-600 mb-4">2024</h4>
+                    <div class="gallery-grid">
+                        <img src="img/ani 50 event.jpg" alt="Aniversario 50" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/ani 50.jpg" alt="Aniversario 50" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/50. ani.jpg" alt="Aniversario 50" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/50 ani.jpg" alt="Aniversario 50" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+                <!-- Casilla 2025 -->
+                <div style="text-align: center;" class="bg-white p-4 rounded-lg shadow-md">
+                    <h4 class="text-2xl font-bold text-green-600 mb-4">2025</h4>
+                    <div class="gallery-grid">
+                        <img src="img/event 2025 51 aniver.jpg" alt="Aniversario 51" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/evento 51 aniversa.jpg" alt="Aniversario 51" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/evento 2025 51 aniversario.jpg" alt="Aniversario 51" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/evento aniversario 51.jpg" alt="Aniversario 51" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: aserradero -->
+        <section id="aserradero" class="gallery-section">
+            <h3 class="text-3xl font-bold text-center text-green-800 mb-6">Aserradero</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Casilla 2024 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+
+                    <div class="gallery-grid">
+                        <img src="img/aserradero 1.jpg" alt="Aserradero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/aserradero...jpg" alt="Aserradero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/aserradero..jpg" alt="Aserradero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/aserradero.....jpg" alt="Aserradero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                    </div>
+                </div>
+                <!-- Casilla 2025 -->
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="gallery-grid">
+                        <img src="img/aserradero....jpg" alt="Aserradero" class="gallery-image"
+                            onclick="openLightbox(this.src, this.alt)">
+                        <img src="img/aserra.jpeg" alt="Aserradero" class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                        <video controls>
+                            <source src="img/aserradero .2.mp4" type="video/mp4">
+                        </video>
+                         <img src="img/ase.jpeg" alt="Aserradero" class="gallery-image" onclick="openLightbox(this.src, this.alt)">
+                       
+
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </section>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <span onclick="closeLightbox()" class="absolute top-5 right-5 text-white text-2xl cursor-pointer">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+        <p id="lightbox-caption" class="lightbox-caption"></p>
+    </div>
+
+    <!-- Pie de página -->
+    <footer class="bg-green-900 text-white py-6 text-center">
+        <p>&copy; 2025 FEHCAFOR.</p>
+    </footer>
+
+    <script>
+        function openLightbox(src, alt) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            lightboxImg.src = src;
+            lightboxCaption.textContent = alt;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+
+    </script>
+</body>
+
+</html>
